@@ -1,0 +1,170 @@
+---
+title: "Reproducible research assignment"
+author: "David García Sabaté"
+date: "24/4/2019"
+output: 
+  html_document: 
+    fig_caption: yes
+    self_contained: no
+---
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+```
+
+## Programming assignment 1: reproducible research  
+
+### 1. Code for reading in the dataset and/or processing the data
+
+Download the "activity.csv" dataset
+
+```{r import}
+zipUrl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+zipFile <- "repdata_data_activity.zip"
+download.file(zipUrl, zipFile, mode = "wb")
+unzip(zipFile)
+```
+
+Now we have tib_observations tibble object, and see a sample of 10 observations
+
+```{r tibble}
+dataframe <- read.csv("activity.csv")
+tib_observations <- as_tibble(dataframe)
+tib_observations$date <- ymd(tib_observations$date)
+head(tib_observations, 10)
+```
+
+### 2. Histogram of the total number of steps taken each day
+
+```{r histogram}
+sum_steps <- tib_observations %>%
+  group_by(date) %>%
+  summarize(
+    steps = sum(steps)
+  )
+
+ggplot(sum_steps, aes(date, steps)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+### 3. Mean and median number of steps taken each day
+
+We remove de NA values since we assume that there are no observations in that period of time.
+
+```{r}
+mean_median_steps <- tib_observations %>%
+  filter(!is.na(steps)) %>%
+  group_by(date) %>%
+  summarize(
+    mean = mean(steps, na.rm = T),
+    median = median(steps, na.rm = T)
+  )
+mean_median_steps
+```
+
+### 4. Time series plot of the average number of steps taken
+
+```{r}
+ggplot(mean_median_steps, aes(date, mean)) +
+  geom_line() +
+  scale_x_date(date_breaks = "1 week") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+### 5. The 5-minute interval that, on average, contains the maximum number of steps
+```{r}
+five_minute <- tib_observations %>%
+  filter(!is.na(steps)) %>%
+  group_by(interval) %>%
+  summarize(
+    average = mean(steps)
+  ) %>%
+  arrange(desc(average))
+
+  head(five_minute, 1)
+```
+
+The interval that, on average, contains de maximum number of steps is 8:35
+
+### 6. Code to describe and show a strategy for imputing missing data
+
+Total number of missing values:  
+
+```{r}
+tib_obsNA <- tib_observations %>%
+filter(is.na(steps))
+  
+(count(tib_obsNA) * 100) / count(tib_observations)
+```
+Total NAs are 2304 observations. They represent 13% of the whole sample.
+
+Strategy for filling in all of the missing values in the dataset is using the mean for that 5-minute interval.
+
+```{r}
+#calculate means for every period in a separate table
+tib_media_periodos <- tib_observations %>%
+  group_by(interval) %>%
+  summarize(
+    mean = mean(steps, na.rm = T)
+  )
+
+#join means table with the main table
+tib_medias <- left_join(tib_observations, tib_media_periodos)
+tib_medias$mean <- as.integer(tib_medias$mean)
+#Replace NA Values
+tib_medias$steps[is.na(tib_medias$steps)] <- tib_medias$mean[is.na(tib_medias$steps)]  
+
+# Resulting table
+tib_filled <- tib_medias %>%
+  select(-mean)
+
+head(tib_filled,10)
+```
+
+
+### 7. Histogram of the total number of steps taken each day after missing values are imputed
+
+```{r histogram2}
+tib_filled %>%
+  group_by(date) %>%
+  summarize(
+    steps = sum(steps)
+  )
+
+ggplot(tib_filled, aes(date, steps)) +
+  geom_bar(stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+### 8. Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
+
+```{r}
+# weekdays -> 2-6, weekends -> 1 or 7
+tib_filled_wdays <- tib_filled %>%
+  mutate(
+    weekday = wday(date, label = T),
+    weekday_int = wday(date),
+    is_weekday = weekday_int %in% c(2:6) 
+  )
+
+tib_filled_wdays_summary <- tib_filled_wdays %>%
+  group_by(interval, is_weekday) %>%
+  summarize(
+    mean = mean(steps)
+  )
+
+ggplot(data = tib_filled_wdays_summary) + 
+  geom_line(mapping = aes(x = interval, y = mean)) +
+  facet_wrap(~ is_weekday, nrow = 2, ncol = 1) + 
+  labs(
+    title = "Comparision: number of steps (Weekdays V/S weekends)",
+    subtitle = "People tend to walk more on weekends",
+    caption = "Weekday = TRUE; Weekend = FALSE"
+  )
+```
+

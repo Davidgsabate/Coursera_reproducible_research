@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="David García Sabaté" />
+
+
+<title>Reproducible research assignment</title>
+
+<script src="PA1_template_files/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="PA1_template_files/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="PA1_template_files/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="PA1_template_files/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="PA1_template_files/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="PA1_template_files/navigation-1.1/tabsets.js"></script>
+<link href="PA1_template_files/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="PA1_template_files/highlightjs-9.12.0/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Reproducible research assignment</h1>
+<h4 class="author"><em>David García Sabaté</em></h4>
+<h4 class="date"><em>24/4/2019</em></h4>
+
+</div>
+
+
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)</code></pre>
+<pre class="r"><code>library(tidyverse)
+library(lubridate)</code></pre>
+<div id="programming-assignment-1-reproducible-research" class="section level2">
+<h2>Programming assignment 1: reproducible research</h2>
+<div id="code-for-reading-in-the-dataset-andor-processing-the-data" class="section level3">
+<h3>1. Code for reading in the dataset and/or processing the data</h3>
+<p>Download the “activity.csv” dataset</p>
+<pre class="r"><code>zipUrl &lt;- &quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;
+zipFile &lt;- &quot;repdata_data_activity.zip&quot;
+download.file(zipUrl, zipFile, mode = &quot;wb&quot;)
+unzip(zipFile)</code></pre>
+<p>Now we have tib_observations tibble object, and see a sample of 10 observations</p>
+<pre class="r"><code>dataframe &lt;- read.csv(&quot;activity.csv&quot;)
+tib_observations &lt;- as_tibble(dataframe)
+tib_observations$date &lt;- ymd(tib_observations$date)
+head(tib_observations, 10)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    steps date       interval
+##    &lt;int&gt; &lt;date&gt;        &lt;int&gt;
+##  1    NA 2012-10-01        0
+##  2    NA 2012-10-01        5
+##  3    NA 2012-10-01       10
+##  4    NA 2012-10-01       15
+##  5    NA 2012-10-01       20
+##  6    NA 2012-10-01       25
+##  7    NA 2012-10-01       30
+##  8    NA 2012-10-01       35
+##  9    NA 2012-10-01       40
+## 10    NA 2012-10-01       45</code></pre>
+</div>
+<div id="histogram-of-the-total-number-of-steps-taken-each-day" class="section level3">
+<h3>2. Histogram of the total number of steps taken each day</h3>
+<pre class="r"><code>sum_steps &lt;- tib_observations %&gt;%
+  group_by(date) %&gt;%
+  summarize(
+    steps = sum(steps)
+  )
+
+ggplot(sum_steps, aes(date, steps)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90))</code></pre>
+<pre><code>## Warning: Removed 8 rows containing missing values (position_stack).</code></pre>
+<p><img src="PA1_template_files/figure-html/histogram-1.png" width="672" /></p>
+</div>
+<div id="mean-and-median-number-of-steps-taken-each-day" class="section level3">
+<h3>3. Mean and median number of steps taken each day</h3>
+<p>We remove de NA values since we assume that there are no observations in that period of time.</p>
+<pre class="r"><code>mean_median_steps &lt;- tib_observations %&gt;%
+  filter(!is.na(steps)) %&gt;%
+  group_by(date) %&gt;%
+  summarize(
+    mean = mean(steps, na.rm = T),
+    median = median(steps, na.rm = T)
+  )
+mean_median_steps</code></pre>
+<pre><code>## # A tibble: 53 x 3
+##    date         mean median
+##    &lt;date&gt;      &lt;dbl&gt;  &lt;dbl&gt;
+##  1 2012-10-02  0.438      0
+##  2 2012-10-03 39.4        0
+##  3 2012-10-04 42.1        0
+##  4 2012-10-05 46.2        0
+##  5 2012-10-06 53.5        0
+##  6 2012-10-07 38.2        0
+##  7 2012-10-09 44.5        0
+##  8 2012-10-10 34.4        0
+##  9 2012-10-11 35.8        0
+## 10 2012-10-12 60.4        0
+## # … with 43 more rows</code></pre>
+</div>
+<div id="time-series-plot-of-the-average-number-of-steps-taken" class="section level3">
+<h3>4. Time series plot of the average number of steps taken</h3>
+<pre class="r"><code>ggplot(mean_median_steps, aes(date, mean)) +
+  geom_line() +
+  scale_x_date(date_breaks = &quot;1 week&quot;) +
+  theme(axis.text.x = element_text(angle = 90))</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+</div>
+<div id="the-5-minute-interval-that-on-average-contains-the-maximum-number-of-steps" class="section level3">
+<h3>5. The 5-minute interval that, on average, contains the maximum number of steps</h3>
+<pre class="r"><code>five_minute &lt;- tib_observations %&gt;%
+  filter(!is.na(steps)) %&gt;%
+  group_by(interval) %&gt;%
+  summarize(
+    average = mean(steps)
+  ) %&gt;%
+  arrange(desc(average))
+
+  head(five_minute, 1)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   interval average
+##      &lt;int&gt;   &lt;dbl&gt;
+## 1      835    206.</code></pre>
+<p>The interval that, on average, contains de maximum number of steps is 8:35</p>
+</div>
+<div id="code-to-describe-and-show-a-strategy-for-imputing-missing-data" class="section level3">
+<h3>6. Code to describe and show a strategy for imputing missing data</h3>
+<p>Total number of missing values:</p>
+<pre class="r"><code>tib_obsNA &lt;- tib_observations %&gt;%
+filter(is.na(steps))
+  
+(count(tib_obsNA) * 100) / count(tib_observations)</code></pre>
+<pre><code>##          n
+## 1 13.11475</code></pre>
+<p>Total NAs are 2304 observations. They represent 13% of the whole sample.</p>
+<p>Strategy for filling in all of the missing values in the dataset is using the mean for that 5-minute interval.</p>
+<pre class="r"><code>#calculate means for every period in a separate table
+tib_media_periodos &lt;- tib_observations %&gt;%
+  group_by(interval) %&gt;%
+  summarize(
+    mean = mean(steps, na.rm = T)
+  )
+
+#join means table with the main table
+tib_medias &lt;- left_join(tib_observations, tib_media_periodos)</code></pre>
+<pre><code>## Joining, by = &quot;interval&quot;</code></pre>
+<pre class="r"><code>tib_medias$mean &lt;- as.integer(tib_medias$mean)
+#Replace NA Values
+tib_medias$steps[is.na(tib_medias$steps)] &lt;- tib_medias$mean[is.na(tib_medias$steps)]  
+
+# Resulting table
+tib_filled &lt;- tib_medias %&gt;%
+  select(-mean)
+
+head(tib_filled,10)</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    steps date       interval
+##    &lt;int&gt; &lt;date&gt;        &lt;int&gt;
+##  1     1 2012-10-01        0
+##  2     0 2012-10-01        5
+##  3     0 2012-10-01       10
+##  4     0 2012-10-01       15
+##  5     0 2012-10-01       20
+##  6     2 2012-10-01       25
+##  7     0 2012-10-01       30
+##  8     0 2012-10-01       35
+##  9     0 2012-10-01       40
+## 10     1 2012-10-01       45</code></pre>
+</div>
+<div id="histogram-of-the-total-number-of-steps-taken-each-day-after-missing-values-are-imputed" class="section level3">
+<h3>7. Histogram of the total number of steps taken each day after missing values are imputed</h3>
+<pre class="r"><code>tib_filled %&gt;%
+  group_by(date) %&gt;%
+  summarize(
+    steps = sum(steps)
+  )</code></pre>
+<pre><code>## # A tibble: 61 x 2
+##    date       steps
+##    &lt;date&gt;     &lt;int&gt;
+##  1 2012-10-01 10641
+##  2 2012-10-02   126
+##  3 2012-10-03 11352
+##  4 2012-10-04 12116
+##  5 2012-10-05 13294
+##  6 2012-10-06 15420
+##  7 2012-10-07 11015
+##  8 2012-10-08 10641
+##  9 2012-10-09 12811
+## 10 2012-10-10  9900
+## # … with 51 more rows</code></pre>
+<pre class="r"><code>ggplot(tib_filled, aes(date, steps)) +
+  geom_bar(stat = &quot;identity&quot;) +
+  theme(axis.text.x = element_text(angle = 90))</code></pre>
+<p><img src="PA1_template_files/figure-html/histogram2-1.png" width="672" /></p>
+</div>
+<div id="panel-plot-comparing-the-average-number-of-steps-taken-per-5-minute-interval-across-weekdays-and-weekends" class="section level3">
+<h3>8. Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends</h3>
+<pre class="r"><code># weekdays -&gt; 2-6, weekends -&gt; 1 or 7
+tib_filled_wdays &lt;- tib_filled %&gt;%
+  mutate(
+    weekday = wday(date, label = T),
+    weekday_int = wday(date),
+    is_weekday = weekday_int %in% c(2:6) 
+  )
+
+tib_filled_wdays_summary &lt;- tib_filled_wdays %&gt;%
+  group_by(interval, is_weekday) %&gt;%
+  summarize(
+    mean = mean(steps)
+  )
+
+ggplot(data = tib_filled_wdays_summary) + 
+  geom_line(mapping = aes(x = interval, y = mean)) +
+  facet_wrap(~ is_weekday, nrow = 2, ncol = 1) + 
+  labs(
+    title = &quot;Comparision: number of steps (Weekdays V/S weekends)&quot;,
+    subtitle = &quot;People tend to walk more on weekends&quot;,
+    caption = &quot;Weekday = TRUE; Weekend = FALSE&quot;
+  )</code></pre>
+<p><img src="PA1_template_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
