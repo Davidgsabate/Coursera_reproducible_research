@@ -6,6 +6,7 @@ output:
   html_document: 
     fig_caption: yes
     self_contained: no
+    keep_md: true
 ---
 
 ```{r setup, include=TRUE}
@@ -56,21 +57,20 @@ ggplot(sum_steps, aes(date, steps)) +
 
 We remove de NA values since we assume that there are no observations in that period of time.
 
+Mean:
 ```{r}
-mean_median_steps <- tib_observations %>%
-  filter(!is.na(steps)) %>%
-  group_by(date) %>%
-  summarize(
-    mean = mean(steps, na.rm = T),
-    median = median(steps, na.rm = T)
-  )
-mean_median_steps
+mean(sum_steps$steps, na.rm = T) 
+```
+
+Median:
+```{r}
+median(sum_steps$steps, na.rm = T)
 ```
 
 ### 4. Time series plot of the average number of steps taken
 
 ```{r}
-ggplot(mean_median_steps, aes(date, mean)) +
+ggplot(sum_steps, aes(date, steps)) +
   geom_line() +
   scale_x_date(date_breaks = "1 week") +
   theme(axis.text.x = element_text(angle = 90))
@@ -156,15 +156,17 @@ tib_filled_wdays_summary <- tib_filled_wdays %>%
   group_by(interval, is_weekday) %>%
   summarize(
     mean = mean(steps)
-  )
+  ) 
+
+tib_filled_wdays_summary$is_weekday <- str_replace_all(tib_filled_wdays_summary$is_weekday, c("FALSE" = "Weekends", "TRUE" = "Weekdays"))
+
 
 ggplot(data = tib_filled_wdays_summary) + 
   geom_line(mapping = aes(x = interval, y = mean)) +
   facet_wrap(~ is_weekday, nrow = 2, ncol = 1) + 
   labs(
     title = "Comparision: number of steps (Weekdays V/S weekends)",
-    subtitle = "People tend to walk more on weekends",
-    caption = "Weekday = TRUE; Weekend = FALSE"
+    subtitle = "People tend to walk more on weekends"
   )
 ```
 

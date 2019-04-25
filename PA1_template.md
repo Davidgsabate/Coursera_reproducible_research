@@ -84,46 +84,41 @@ ggplot(sum_steps, aes(date, steps)) +
 
 We remove de NA values since we assume that there are no observations in that period of time.
 
+Mean:
 
 ```r
-mean_median_steps <- tib_observations %>%
-  filter(!is.na(steps)) %>%
-  group_by(date) %>%
-  summarize(
-    mean = mean(steps, na.rm = T),
-    median = median(steps, na.rm = T)
-  )
-mean_median_steps
+mean(sum_steps$steps, na.rm = T) 
 ```
 
 ```
-## # A tibble: 53 x 3
-##    date         mean median
-##    <date>      <dbl>  <dbl>
-##  1 2012-10-02  0.438      0
-##  2 2012-10-03 39.4        0
-##  3 2012-10-04 42.1        0
-##  4 2012-10-05 46.2        0
-##  5 2012-10-06 53.5        0
-##  6 2012-10-07 38.2        0
-##  7 2012-10-09 44.5        0
-##  8 2012-10-10 34.4        0
-##  9 2012-10-11 35.8        0
-## 10 2012-10-12 60.4        0
-## # … with 43 more rows
+## [1] 10766.19
+```
+
+Median:
+
+```r
+median(sum_steps$steps, na.rm = T)
+```
+
+```
+## [1] 10765
 ```
 
 ### 4. Time series plot of the average number of steps taken
 
 
 ```r
-ggplot(mean_median_steps, aes(date, mean)) +
+ggplot(sum_steps, aes(date, steps)) +
   geom_line() +
   scale_x_date(date_breaks = "1 week") +
   theme(axis.text.x = element_text(angle = 90))
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+```
+## Warning: Removed 2 rows containing missing values (geom_path).
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 
 ### 5. The 5-minute interval that, on average, contains the maximum number of steps
 
@@ -266,17 +261,19 @@ tib_filled_wdays_summary <- tib_filled_wdays %>%
   group_by(interval, is_weekday) %>%
   summarize(
     mean = mean(steps)
-  )
+  ) 
+
+tib_filled_wdays_summary$is_weekday <- str_replace_all(tib_filled_wdays_summary$is_weekday, c("FALSE" = "Weekends", "TRUE" = "Weekdays"))
+
 
 ggplot(data = tib_filled_wdays_summary) + 
   geom_line(mapping = aes(x = interval, y = mean)) +
   facet_wrap(~ is_weekday, nrow = 2, ncol = 1) + 
   labs(
     title = "Comparision: number of steps (Weekdays V/S weekends)",
-    subtitle = "People tend to walk more on weekends",
-    caption = "Weekday = TRUE; Weekend = FALSE"
+    subtitle = "People tend to walk more on weekends"
   )
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
